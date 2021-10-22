@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ball</title>
+    <style>
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        canvas {
+            background: #eee;
+            display: block;
+            margin: 0 auto;
+        }
+
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas"></canvas>
+    <script>
+        let canvas = document.getElementById("myCanvas");
+        let ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        let ball_x = canvas.width/2;
+        let ball_y = canvas.height/2;
+        let move_x = 0;
+        let move_y = 0;
+        let ballRadius = 10;
+        let boost_x = 0.1;
+        let boost_y = 0.1;
+        let time = 60;
+        let score = 0;
+        let interval = setInterval(draw, 10);
+
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ball_x, ball_y, ballRadius, 0, Math.PI*2);
+            ctx.fillStyle = "#000000";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawTimer() {
+            ctx.font = "30px serif";
+            ctx.fillText("Timer:" + Math.round(time), 0, 30);
+            time -= 0.01
+        }
+
+        function drawScore() {
+            ctx.font = "30px serif";
+            ctx.fillText("Score:" + score, canvas.width - 110, 30);
+        }
+
+        function getCursorPosition(canvas, event) {
+            const rect = canvas.getBoundingClientRect()
+            const cursor_x = event.clientX - rect.left
+            const cursor_y = event.clientY - rect.top
+            return [Math.round(cursor_x), Math.round(cursor_y)]
+        }
+
+        canvas.addEventListener('mousedown', function(e) {
+            let cursor_coordinate = getCursorPosition(canvas, e) //get array[x, y] click coordinate
+            let ball_coordinate = [Math.round(ball_x), Math.round(ball_y)]
+            if(cursor_coordinate[0] - ball_coordinate[0] < 5 && cursor_coordinate[1] - ball_coordinate[1] < 5){
+                move_x += boost_x;
+                move_y += boost_y;
+                score += 1
+            }
+        })
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); //clear canvas
+            drawBall()
+            drawTimer()
+            drawScore()
+            if(ball_x + move_x > canvas.width-ballRadius || ball_x + move_x < ballRadius) { //rebound from width
+                move_x = -move_x;
+                boost_x = -boost_x;
+            }
+            if(ball_y + move_y > canvas.height-ballRadius || ball_y + move_y < ballRadius) { //rebound from height
+                move_y = -move_y;
+                boost_y = -boost_y;
+            }
+            ball_x += move_x;
+            ball_y += move_y;
+            if (time <= 0) {
+                clearInterval(interval)
+                alert('Your Score: ' + score)
+            }
+        }
+    </script>
+</body>
+</html>
